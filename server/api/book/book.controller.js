@@ -15,6 +15,7 @@ var Book = require('./book.model');
 
 var GoogleAPIkey2 = '&key=AIzaSyDspbc6079PHDz2fWQUbwtt_V6tan3uXVA';
 var GoogleAPIkey1 = '&key=AIzaSyCqY-SZmtd-L_0ARZm4Ur7DHIpgzfyHoZY';
+var GoogleAPIkey3 = '&key=AIzaSyCOLxmaYv9cJLB3aHC2sVfStldxsBeefeI';
 var GoogleURL="https://www.googleapis.com/books/v1/volumes?q=intitle:";
 
 // https://www.googleapis.com/books/v1/volumes?q=intitle:harr%book20potter&key=AIzaSyDspbc6079PHDz2fWQUbwtt_V6tan3uXVA
@@ -85,7 +86,7 @@ exports.indexLendedOut = function(req, res) {
 exports.search = function(req, res) {
 
   var keyword = req.params.keyword;
-  https.get(GoogleURL + keyword + GoogleAPIkey2, 
+  https.get(GoogleURL + keyword + '&country=US' +GoogleAPIkey3, 
       function(data){
         var bookResponse='';
         data.on("data", function(chunk) {
