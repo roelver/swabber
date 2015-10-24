@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('swabberApp')
-  .factory('Modal', function ($rootScope, $modal) {
+  .factory('BooksModal', function ($rootScope, $modal) {
     /**
      * Opens a modal
      * @param  {Object} scope      - an object to be merged with modal's scope
@@ -16,7 +16,7 @@ angular.module('swabberApp')
       angular.extend(modalScope, scope);
 
       return $modal.open({
-        templateUrl: 'components/modal/modal.html',
+        templateUrl: 'components/modal/booksmodal.html',
         windowClass: modalClass,
         scope: modalScope
       });
@@ -24,54 +24,125 @@ angular.module('swabberApp')
 
     // Public API here
     return {
+      choice: function(callback) {
+        callback = callback || angualar.noop;
 
-      /* Confirmation modals */
-      confirm: {
+        return function() {
+            var args = Array.prototype.slice.call(arguments);
+            var name = args.shift();
+            var showModal;
 
-        /**
-         * Create a function to open a delete confirmation modal (ex. ng-click='myModalFn(name, arg1, arg2...)')
-         * @param  {Function} del - callback, ran when delete is confirmed
-         * @return {Function}     - the function to open the modal (ex. myModalFn)
-         */
-        delete: function(del) {
-          del = del || angular.noop;
-
-          /**
-           * Open a delete confirmation modal
-           * @param  {String} name   - name or info to show on modal
-           * @param  {All}           - any additional args are passed straight to del callback
-           */
-          return function() {
-            var args = Array.prototype.slice.call(arguments),
-                name = args.shift(),
-                deleteModal;
-
-            deleteModal = openModal({
+            showModal = openModal({
               modal: {
                 dismissable: true,
-                title: 'Confirm Delete',
-                html: '<p>Are you sure you want to delete <strong>' + name + '</strong> ?</p>',
+                title: 'Select your book',
                 buttons: [{
-                  classes: 'btn-danger',
-                  text: 'Delete',
-                  click: function(e) {
-                    deleteModal.close(e);
-                  }
-                }, {
                   classes: 'btn-default',
                   text: 'Cancel',
                   click: function(e) {
-                    deleteModal.dismiss(e);
+                    showModal.dismiss(e);
                   }
-                }]
+                }],
+                selectBook: function(book) {
+                  showModal.close();
+                  callback(book);
+                }
               }
-            }, 'modal-danger');
-
-            deleteModal.result.then(function(event) {
-              del.apply(event, args);
-            });
+            }, 'modal-info');
           };
-        }
+      }
+
+    };
+  })
+
+  .factory('AbuseModal', function ($rootScope, $modal) {
+    function openModal(scope, modalClass) {
+      var modalScope = $rootScope.$new();
+      scope = scope || {};
+      modalClass = modalClass || 'modal-default';
+
+      angular.extend(modalScope, scope);
+      return $modal.open({
+        templateUrl: 'components/modal/abusemodal.html',
+        windowClass: modalClass,
+        scope: modalScope
+      });
+    }
+
+    // Public API here
+    return {
+      choice: function(book, callback) {
+        callback = callback || angualar.noop;
+
+        return function() {
+            var args = Array.prototype.slice.call(arguments);
+            var name = args.shift();
+            var showModal;
+
+            showModal = openModal({
+              modal: {
+                dismissable: true,
+                title: 'Report Abuse',
+                abusetext: '',
+                submit: function() {
+                    showModal.close();
+                    callback(book, this.abusetext);
+                }
+              }
+            }, 'modal-info');
+          };
+      }
+
+    };
+  })
+
+  .factory('AddressModal', function ($rootScope, $modal) {
+    /**
+     * Opens a modal
+     * @param  {Object} scope      - an object to be merged with modal's scope
+     * @param  {String} modalClass - (optional) class(es) to be applied to the modal
+     * @return {Object}            - the instance $modal.open() returns
+     */
+    function openModal(scope, modalClass) {
+      var modalScope = $rootScope.$new();
+      scope = scope || {};
+      modalClass = modalClass || 'modal-default';
+
+      angular.extend(modalScope, scope);
+      return $modal.open({
+        templateUrl: 'components/modal/addressmodal.html',
+        windowClass: modalClass,
+        scope: modalScope
+      });
+    }
+
+    // Public API here
+    return {
+      choice: function(book, callback) {
+        callback = callback || angualar.noop;
+
+        return function() {
+            var args = Array.prototype.slice.call(arguments);
+            console.log('Args:',args);
+            var name = args.shift();
+            var showModal;
+
+            showModal = openModal({
+              modal: {
+                dismissable: true,
+                title: 'Enter delivery address',
+                text: 'Where will this book '+book.title+' be sent to.',
+                address: '',
+                postalcode: '',
+                city: '',
+                submit: function() {
+                    showModal.close();
+                    callback(book, this.address, this.postalcode, this.city);
+                }
+              }
+            }, 'modal-info');
+          };
       }
     };
-  });
+  })
+;

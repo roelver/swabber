@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var crypto = require('crypto');
 
+
 var UserSchema = new Schema({
   name: String,
   email: { type: String, lowercase: true },
@@ -35,8 +36,10 @@ UserSchema
   .virtual('profile')
   .get(function() {
     return {
+      'id': this._id,
       'name': this.name,
-      'role': this.role
+      'role': this.role,
+      'email': this.email
     };
   });
 

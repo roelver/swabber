@@ -1,0 +1,18 @@
+<div class="modal-header">
+  <button ng-if="modal.dismissable" type="button" ng-click="$dismiss()" class="close">&times;</button>
+  <h4 ng-if="modal.title" ng-bind="modal.title" class="modal-title"></h4>
+</div>
+  <form role="form" name="abuseform">
+<div class="modal-body">
+  <p ng-if="modal.text" ng-bind="modal.text"></p>
+    <div class="form-group">
+      <label for="abuse-text">Please explain why you want to report abuse by this user</label>
+      <textarea name="abuse-text" class="form-control" ng-model="modal.abusetext" width="70" heigth="4"></textarea>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="modal.submit()">Submit</button>
+    <button class="btn btn-default" ng-click="$dismiss()">Cancel</button>
+</div>
+</form>

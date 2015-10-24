@@ -38,9 +38,9 @@ exports.create = function (req, res, next) {
  * Get a single user
  */
 exports.show = function (req, res, next) {
-  var userId = req.params.id;
+  var name = req.params.name;
 
-  User.findById(userId, function (err, user) {
+  User.findOne({name: name}, function (err, user) {
     if (err) return next(err);
     if (!user) return res.status(401).send('Unauthorized');
     res.json(user.profile);

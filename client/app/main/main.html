@@ -1,28 +1,215 @@
 <div ng-include="'components/navbar/navbar.html'"></div>
 
-<header class="hero-unit" id="banner">
+<header id="banner">
   <div class="container">
-    <h1>'Allo, 'Allo!</h1>
-    <p class="lead">Kick-start your next web app with Angular Fullstack</p>
-    <img src="assets/images/yeoman.png" alt="I'm Yeoman">
+    <h2>Swab your books for free</h2>
   </div>
 </header>
-
+<h4><i class="glyphicon glyphicon-hand-right"></i> <span ng-show="isLoggedIn()">Right click on the books for the options menu</span><span ng-hide="isLoggedIn()">Log in to start swabbing</span> <i class="glyphicon glyphicon-hand-left"></i></h4>
 <div class="container">
   <div class="row">
-    <div class="col-lg-12">
-      <h1 class="page-header">Features:</h1>
-      <ul class="nav nav-tabs nav-stacked col-md-4 col-lg-4 col-sm-6" ng-repeat="thing in awesomeThings">
-        <li><a href="#" tooltip="{{thing.info}}">{{thing.name}}</a></li>
-      </ul>
+    <div class="col-lg-8 col-sm-6">
+      <div class="section">
+        <div class="top-section">
+          <span class="filtermain"><input type="checkbox" ng-model="showOwnBooks"> Show my own books here</span>
+          <h1 class="page-header">Available books</h1>
+        </div> 
+        <div class="main-book-list col-md-12">
+          <ul class="book-items">
+            <li ng-repeat="book in freeBooks" class="book-item-main" ng-show="showOwnBooks || book.owner.name !== me.name">
+             <div context-menu data-target="menu-main-{{ $index }}">
+                <div ng-mouseenter="displayOwner = $index" ng-mouseleave="displayOwner = -1">
+                  <span class="book-owner" ng-show="displayOwner == $index">Owner: {{book.owner.name}}</span>
+                  <img class="book-cover" ng-src="{{book.coverImg}}">
+                  <p class="book-title">{{book.title | limitTo : 40}}</p>
+                </div>
+              </div>
+              <div class="dropdown position-fixed" id="menu-main-{{ $index }}" style="z-index: 10;" ng-show="isLoggedIn() && book.owner.name !== me.name">
+                <ul class="dropdown-menu" role="menu">
+                  <li>
+                    <a class="pointer" role="menuitem" tabindex="1" ng-click="requestBook($index)">Request this book</a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div> <!-- .section -->
+    </div> <!-- left column -->
+
+    <div class="col-lg-4 col-sm-6" ng-show="isLoggedIn()">
+
+      <div class="section">
+        <h1 class="page-header">Notifications</h1>
+        <p ng-hide="notifications.length > 0">No notifications currently</p>
+        <div class="col-md-12 notifications" ng-show="notifications.length > 0">
+          <ul class="notific nav nav-tabs nav-stacked col-xs-12 col-lg-12" ng-repeat="notif in notifications">
+            <li><a href="#" tooltip="{{ notif.created | date: short }}"><button type="button" class="close" ng-click="deleteNotification(notif)">&times;</button><p class="notif">{{notif.text}}</p></a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h1 class="page-header">Add your books</h1>
+        <input id="search" type="text" size="40" ng-model="keywords"><button class="btn btn-info" ng-click="searchBook()">Search</button>
+      </div> <!-- .section -->
+
+      <div class="section">
+        <h1 class="page-header">My books on my shelf</h1>
+        <div class="my-book-list col-md-12">
+          <ul class="book-items">
+            <li  ng-repeat="book in myBooks" class="book-item-mybooks">
+             <div context-menu data-target="menu-mybooks-{{ $index }}">
+              <div>
+                <img class="book-cover" ng-src="{{book.coverImg}}">
+                <p class="book-title">{{book.title | limitTo : 40}}</p>
+              </div>
+             </div>
+              <div class="dropdown position-fixed" id="menu-mybooks-{{ $index }}" style="z-index: 10;">
+                <ul class="dropdown-menu" role="menu">
+                  <li>
+                    <a class="pointer" role="menuitem" tabindex="1" ng-click="deleteMyBook($index)">Delete book</a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div> <!-- right column -->
+  </div> <!-- .row -->
+  <div class="row">
+    <div class="col-lg-6 col-sm-6" ng-show="isLoggedIn()">
+
+      <div class="section">
+        <h1 class="page-header">My swabbed books</h1>
+        <div class="my-book-list col-md-12">
+          <ul class="book-items">
+            <li  ng-repeat="book in myLendedOut" class="book-item-lendout">
+             <div context-menu data-target="menu-lendout-{{ $index }}">
+              <div ng-mouseenter="displayLendedOutLender = $index" ng-mouseleave="displayLendedOutLender = -1">
+                <span class="book-owner" ng-show="displayLendedOutLender == $index">Swabber: {{book.lendedTo.name}}</span>
+                <img class="book-cover" ng-src="{{book.coverImg}}">
+                <p class="book-title">{{book.title | limitTo : 40}}</p>
+              </div>
+             </div>
+              <div class="dropdown position-fixed" id="menu-lendout-{{ $index }}" style="z-index: 10;">
+                <ul class="dropdown-menu" role="menu">
+                  <li>
+                    <a class="pointer" role="menuitem" tabindex="1" ng-click="giveAway($index)">Give away to this user</a>
+                  </li>
+                  <li>
+                    <a class="pointer" role="menuitem" tabindex="1" ng-click="requestReturn($index)">Request for return</a>
+                  </li>
+                  <li>
+                    <a class="pointer" role="menuitem" tabindex="2" ng-click="reportAbuse($index)" ng-hide="isAdmin()">Report user to admin</a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h1 class="page-header">Books I swabbed</h1>
+        <div class="my-book-list col-md-12">
+          <ul class="book-items">
+            <li  ng-repeat="book in myLendedIn" class="book-item-lendin">
+             <div context-menu data-target="menu-lendin-{{ $index }}">
+              <div ng-mouseenter="displayLendedInOwner = $index" ng-mouseleave="displayLendedInOwner = -1">
+                <span class="book-owner" ng-show="displayLendedInOwner == $index">Owner: {{book.owner.name}}</span>
+                <img class="book-cover" ng-src="{{book.coverImg}}">
+                <p class="book-title">{{book.title | limitTo : 40}}</p>
+              </div>
+             </div>
+              <div class="dropdown position-fixed" id="menu-lendin-{{ $index }}" style="z-index: 10;">
+                <ul class="dropdown-menu" role="menu">
+                  <li>
+                    <a class="pointer" role="menuitem" tabindex="1" ng-click="returnBook($index)">Return to owner</a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
     </div>
-  </div>
-</div>
+
+    <div class="col-lg-6 col-sm-6" ng-show="isLoggedIn()">
+
+      <div class="section">
+        <h1 class="page-header">Books I requested from others</h1>
+        <div class="my-book-list col-md-12">
+          <ul class="book-items">
+            <li  ng-repeat="book in myRequestedOut" class="book-item-requestout">
+             <div context-menu data-target="menu-requestout-{{ $index }}">
+              <div ng-mouseenter="displayRequestedOutOwner = $index" ng-mouseleave="displayRequestedOutOwner = -1">
+                <span class="book-owner" ng-show="displayRequestedOutOwner == $index">Owner: {{book.owner.name}}</span>
+                <img class="book-cover" ng-src="{{book.coverImg}}">
+                <p class="book-title">{{book.title | limitTo : 40}}</p>
+              </div>
+             </div>
+              <div class="dropdown position-fixed" id="menu-requestout-{{ $index }}" style="z-index: 10;">
+                <ul class="dropdown-menu" role="menu">
+                  <li>
+                    <a class="pointer" role="menuitem" tabindex="1" ng-click="sendReminder($index)">Send reminder for accept</a>
+                  </li>
+                  <li>
+                    <a class="pointer" role="menuitem" tabindex="2" ng-click="cancelRequest($index)">Cancel swab request</a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h1 class="page-header">Book swab requests from others</h1>
+        <div class="my-book-list col-md-12">
+          <ul class="book-items">
+            <li  ng-repeat="book in myRequestedIn" class="book-item-requestin">
+             <div context-menu data-target="menu-requestin-{{ $index }}">
+             <div ng-mouseenter="displayRequestedInRequestor = $index" ng-mouseleave="displayRequestedInRequestor = -1">
+                <span class="book-owner" ng-show="displayRequestedInRequestor == $index">Requestor: {{book.requestedBy.name}}</span>
+                <img class="book-cover" ng-src="{{book.coverImg}}">
+                <p class="book-title">{{book.title | limitTo : 40}}</p>
+              </div>
+             </div>
+              <div class="dropdown position-fixed" id="menu-requestin-{{ $index }}" style="z-index: 10;">
+                <ul class="dropdown-menu" role="menu">
+                  <li>
+                    <a class="pointer" role="menuitem" tabindex="1" ng-click="acceptRequest($index)">Accept swab</a>
+                  </li>
+                  <li>
+                    <a class="pointer" role="menuitem" tabindex="2" ng-click="declineRequest($index)">Decline swab</a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+    
+  </div> <!-- .row -->
+</div> <!-- .container -->
 
 <footer class="footer">
   <div class="container">
-      <p>Angular Fullstack v2.1.1 |
-        <a href="https://twitter.com/tyhenkel">@tyhenkel</a> |
-         <a href="https://github.com/DaftMonk/generator-angular-fullstack/issues?state=open">Issues</a></p>
+      <p>&copy; 2015 Roel Verbunt for <a href="http://www.freecodecamp.com/challenges/basejump-manage-a-book-trading-club">FreeCodeCamp</a> | <a href="https://github.com/roelver/swabber" target="_blank">Source code</a></p>
   </div>
 </footer>
+
+<script>
+
+   $(document).scroll(function(e) {
+      $('.dropdown').removeClass('open');
+   });
+
+</script>
+

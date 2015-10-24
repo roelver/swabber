@@ -5,7 +5,8 @@ angular.module('swabberApp', [
   'ngResource',
   'ngSanitize',
   'ngRoute',
-  'ui.bootstrap'
+  'ui.bootstrap',
+  'ng-context-menu'
 ])
   .config(function ($routeProvider, $locationProvider, $httpProvider) {
     $routeProvider
@@ -15,6 +16,11 @@ angular.module('swabberApp', [
 
     $locationProvider.html5Mode(true);
     $httpProvider.interceptors.push('authInterceptor');
+  })
+
+  .constant('_', window._)
+  .run(function ($rootScope) {
+     $rootScope._ = window._;
   })
 
   .factory('authInterceptor', function ($rootScope, $q, $cookieStore, $location) {
